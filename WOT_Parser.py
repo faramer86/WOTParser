@@ -3,13 +3,6 @@ import requests
 import pandas as pd
 from bs4 import BeautifulSoup
 
-# Plan:
-# 1) Male/Female
-# 2) Iterate through alphabet
-# 3) Take all characters for latter
-# 4) Parse character and store data
-
-
 def give_sex(url, sex):
     "Return url for category (e.g. Sex)"
     return url[:-6] + sex
@@ -56,7 +49,6 @@ def give_features(soup):
     return ['Name'] + [feature.text for feature in
                  soup.find_all('h3', class_=h3_class)]
 
-
 def parse_char_page(url):
     """
     Parse one character
@@ -74,8 +66,7 @@ def parse_char_page(url):
     features = give_features(soup)
     return pd.DataFrame({f'{key}':value for key, value in zip(features, values)}, index=[0])
 
-
-def parser(sex_url):
+def parse_category(sex_url):
     """
     Parse one category value and
     return pandas dataframe
@@ -92,6 +83,7 @@ def parser(sex_url):
 
 if __name__=='__main__':
     url = 'https://wot.fandom.com/wiki/Category:People'
-    sex_url = give_sex(url, 'Women')
-    df = parser(sex_url)
+    categories = [give_sex(url, gender) for gender in ['Women', 'Men']]
+    df = parse_category(categories[0])\
+        .append(parse_category(categories[1]))
     df.to_csv('~/Desktop/WOT.tsv', sep='\t',index=False)
